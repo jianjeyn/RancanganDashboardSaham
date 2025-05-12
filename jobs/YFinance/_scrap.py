@@ -5,20 +5,21 @@ import argparse
 import yfinance as yf
 from dotenv import load_dotenv
 
-load_dotenv('/opt/airflow/dags/.env')
+load_dotenv('/opt/airflow/jobs/.env')
 
 MONGODB_URI = os.getenv("MONGODB_URI")
+MONGODB_DB = os.getenv("MONGODB_DB")
 
 parser = argparse.ArgumentParser(description="Scrap data from yfinance")
 parser.add_argument("--period", type=str)
-parser.add_argument("--database", type=str)
+parser.add_argument("--collection", type=str)
 
 period = parser.parse_args().period
-database = parser.parse_args().database
+collection = parser.parse_args().collection
 
 client = pymongo.MongoClient(MONGODB_URI)
-db = client[database]
-collection = db["yfinance"]
+db = client[MONGODB_DB]
+collection = db[collection]
 
 tickers = [
     'AADI.JK',

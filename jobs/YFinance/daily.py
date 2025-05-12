@@ -4,12 +4,15 @@ from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_date, year, month, first, last, max, min, sum
 
-load_dotenv('/opt/airflow/dags/.env')
+load_dotenv('/opt/airflow/jobs/.env')
 
 MONGODB_URI = os.getenv("MONGODB_URI")
 MONGODB_DB = os.getenv("MONGODB_DB")
 
-subprocess.run(["python", "/opt/airflow/dags/jobs/YFinance/_scrap.py", "--period", "1d"], check=True)
+subprocess.run(["python", "jobs/YFinance/_scrap.py",
+                "--period", "1d",
+                "--collection", "yfinance_d"
+], check=True)
 
 _spark = SparkSession.builder \
     .appName("ReadMongo") \

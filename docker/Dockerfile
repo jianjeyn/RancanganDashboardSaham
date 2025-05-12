@@ -29,14 +29,3 @@ COPY ./docker/requirements.txt /opt/airflow/
 
 # Upgrade pip and install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Create the /opt/jars directory and download the MongoDB Spark Connector
-RUN mkdir -p /opt/airflow/jars && \
-    curl -o /opt/airflow/jars/mongo-spark-connector.jar \
-        https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/3.0.1/mongo-spark-connector_2.12-3.0.1.jar && \
-    curl -o /opt/airflow/jars/mongodb-driver-sync.jar \
-        https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/4.0.5/mongodb-driver-sync-4.0.5.jar && \
-    curl -o /opt/airflow/jars/mongodb-driver-core.jar \
-        https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-core/4.0.5/mongodb-driver-core-4.0.5.jar && \
-    curl -o /opt/airflow/jars/bson.jar \
-        https://repo1.maven.org/maven2/org/mongodb/bson/4.0.5/bson-4.0.5.jar

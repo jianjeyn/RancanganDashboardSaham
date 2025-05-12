@@ -26,7 +26,6 @@ Dashboard dikembangkan untuk menampilkan **data secara real-time dan historis** 
 ```
 
 * Semua proses terotomatisasi menggunakan **Apache Airflow** sebagai orchestrator batch pipeline.
-* Validasi data dan pengecekan error dilakukan secara otomatis.
 
 
 ---

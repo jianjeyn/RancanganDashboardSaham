@@ -1,0 +1,42 @@
+{"timestamp":"2025-05-12T02:12:01.127390","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager"}
+{"timestamp":"2025-05-12T02:12:01.128167","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/yfinance_DAG.py","logger":"airflow.models.dagbag.DagBag"}
+{"timestamp":"2025-05-12T02:12:12.776474Z","level":"error","event":"25/05/12 02:12:12 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:13.649954Z","level":"error","event":"Setting default log level to \"WARN\".","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:13.785358Z","level":"error","event":"To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.929453Z","level":"error","event":"25/05/12 02:12:17 ERROR SparkContext: Failed to add /opt/airflow/jars/* to Spark environment","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.931700Z","level":"error","event":"java.io.FileNotFoundException: Jar /opt/airflow/jars/* not found","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.934645Z","level":"error","event":"\tat org.apache.spark.SparkContext.addLocalJarFile$1(SparkContext.scala:2095)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.936246Z","level":"error","event":"\tat org.apache.spark.SparkContext.addJar(SparkContext.scala:2151)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.937337Z","level":"error","event":"\tat org.apache.spark.SparkContext.$anonfun$new$15(SparkContext.scala:521)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.938496Z","level":"error","event":"\tat org.apache.spark.SparkContext.$anonfun$new$15$adapted(SparkContext.scala:521)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.939698Z","level":"error","event":"\tat scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.940620Z","level":"error","event":"\tat scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.941727Z","level":"error","event":"\tat scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.942691Z","level":"error","event":"\tat org.apache.spark.SparkContext.<init>(SparkContext.scala:521)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.943585Z","level":"error","event":"\tat org.apache.spark.api.java.JavaSparkContext.<init>(JavaSparkContext.scala:58)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.944650Z","level":"error","event":"\tat java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.945920Z","level":"error","event":"\tat java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.948584Z","level":"error","event":"\tat java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.949372Z","level":"error","event":"\tat java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.950147Z","level":"error","event":"\tat java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.951294Z","level":"error","event":"\tat py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:247)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.952099Z","level":"error","event":"\tat py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.953187Z","level":"error","event":"\tat py4j.Gateway.invoke(Gateway.java:238)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.954013Z","level":"error","event":"\tat py4j.commands.ConstructorCommand.invokeConstructor(ConstructorCommand.java:80)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.955030Z","level":"error","event":"\tat py4j.commands.ConstructorCommand.execute(ConstructorCommand.java:69)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.956044Z","level":"error","event":"\tat py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.956825Z","level":"error","event":"\tat py4j.ClientServerConnection.run(ClientServerConnection.java:106)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:17.957546Z","level":"error","event":"\tat java.base/java.lang.Thread.run(Thread.java:840)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.549846Z","level":"info","event":"Mengambil data saham AADI.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.550646Z","level":"info","event":"Data saham AADI.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.552045Z","level":"info","event":"Mengambil data saham AALI.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.553108Z","level":"info","event":"Data saham AALI.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.553986Z","level":"info","event":"Mengambil data saham ABBA.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.554755Z","level":"info","event":"Data saham ABBA.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.555313Z","level":"info","event":"Mengambil data saham ABDA.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.555949Z","level":"info","event":"Data saham ABDA.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.556622Z","level":"info","event":"Mengambil data saham ABMM.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.557368Z","level":"info","event":"Data saham ABMM.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:52.557989Z","level":"info","event":"Semua data saham selesai diproses!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:12:53.367037","level":"info","event":"Done. Returned value was: None","logger":"airflow.task.operators.airflow.providers.standard.operators.python.PythonOperator"}
+{"timestamp":"2025-05-12T02:12:53.837111Z","level":"error","event":"\r[Stage 0:>                                                          (0 + 1) / 1]\r\r                                                                                \r\r[Stage 1:>                                                          (0 + 1) / 1]\r\r[Stage 1:===========================================================(1 + 0) / 1]\r\r                                                                                \r\r[Stage 4:>                                                          (0 + 1) / 1]\r\r                                                                                \r\r[Stage 7:>                                                          (0 + 1) / 1]","chan":"stderr","logger":"task"}

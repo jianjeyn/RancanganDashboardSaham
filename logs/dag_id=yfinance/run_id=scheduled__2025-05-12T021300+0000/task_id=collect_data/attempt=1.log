@@ -1,0 +1,62 @@
+{"timestamp":"2025-05-12T02:13:00.604752","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager"}
+{"timestamp":"2025-05-12T02:13:00.605622","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/yfinance_DAG.py","logger":"airflow.models.dagbag.DagBag"}
+{"timestamp":"2025-05-12T02:13:09.854032Z","level":"error","event":"Setting default log level to \"WARN\".","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:09.855824Z","level":"error","event":"To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:10.365300Z","level":"error","event":"25/05/12 02:13:10 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.115935Z","level":"info","event":"Mengambil data saham AADI.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.117713Z","level":"info","event":"Data saham AADI.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.118870Z","level":"info","event":"Mengambil data saham AALI.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.119608Z","level":"info","event":"Data saham AALI.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.120730Z","level":"info","event":"Mengambil data saham ABBA.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.122420Z","level":"info","event":"Data saham ABBA.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.123117Z","level":"info","event":"Mengambil data saham ABDA.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.124073Z","level":"info","event":"Data saham ABDA.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.124879Z","level":"info","event":"Mengambil data saham ABMM.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.129052Z","level":"info","event":"Data saham ABMM.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.129999Z","level":"info","event":"Semua data saham selesai diproses!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.130775Z","level":"error","event":"Traceback (most recent call last):","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.132902Z","level":"error","event":"  File \"/opt/airflow/dags/jobs/YFinance.py\", line 60, in <module>","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.133615Z","level":"error","event":"    .load().withColumn(\"date\", to_date(col(\"Date\")))","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.134178Z","level":"error","event":"     ^^^^^^","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.134721Z","level":"error","event":"  File \"/home/airflow/.local/lib/python3.12/site-packages/pyspark/sql/readwriter.py\", line 314, in load","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.135459Z","level":"error","event":"    return self._df(self._jreader.load())","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.136476Z","level":"error","event":"                    ^^^^^^^^^^^^^^^^^^^^","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.137094Z","level":"error","event":"  File \"/home/airflow/.local/lib/python3.12/site-packages/py4j/java_gateway.py\", line 1322, in __call__","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.137767Z","level":"error","event":"    return_value = get_return_value(","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.138370Z","level":"error","event":"                   ^^^^^^^^^^^^^^^^^","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.139020Z","level":"error","event":"  File \"/home/airflow/.local/lib/python3.12/site-packages/pyspark/errors/exceptions/captured.py\", line 179, in deco","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.139583Z","level":"error","event":"    return f(*a, **kw)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.140217Z","level":"error","event":"           ^^^^^^^^^^^","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.140677Z","level":"error","event":"  File \"/home/airflow/.local/lib/python3.12/site-packages/py4j/protocol.py\", line 326, in get_return_value","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.141108Z","level":"error","event":"    raise Py4JJavaError(","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.141649Z","level":"error","event":"py4j.protocol.Py4JJavaError: An error occurred while calling o31.load.","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.142192Z","level":"error","event":": org.apache.spark.SparkClassNotFoundException: [DATA_SOURCE_NOT_FOUND] Failed to find the data source: mongo. Please find packages at `https://spark.apache.org/third-party-projects.html`.","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.142630Z","level":"error","event":"\tat org.apache.spark.sql.errors.QueryExecutionErrors$.dataSourceNotFoundError(QueryExecutionErrors.scala:725)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.143115Z","level":"error","event":"\tat org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSource(DataSource.scala:647)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.143493Z","level":"error","event":"\tat org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSourceV2(DataSource.scala:697)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.143880Z","level":"error","event":"\tat org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:208)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.144315Z","level":"error","event":"\tat org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:172)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.144717Z","level":"error","event":"\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.145125Z","level":"error","event":"\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.145629Z","level":"error","event":"\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.146101Z","level":"error","event":"\tat java.base/java.lang.reflect.Method.invoke(Method.java:569)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.146579Z","level":"error","event":"\tat py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.147000Z","level":"error","event":"\tat py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.147685Z","level":"error","event":"\tat py4j.Gateway.invoke(Gateway.java:282)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.148454Z","level":"error","event":"\tat py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.149174Z","level":"error","event":"\tat py4j.commands.CallCommand.execute(CallCommand.java:79)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.150129Z","level":"error","event":"\tat py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.150957Z","level":"error","event":"\tat py4j.ClientServerConnection.run(ClientServerConnection.java:106)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.151744Z","level":"error","event":"\tat java.base/java.lang.Thread.run(Thread.java:840)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.152411Z","level":"error","event":"Caused by: java.lang.ClassNotFoundException: mongo.DefaultSource","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.152982Z","level":"error","event":"\tat java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:445)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.153679Z","level":"error","event":"\tat java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:592)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.154288Z","level":"error","event":"\tat java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.155007Z","level":"error","event":"\tat org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$lookupDataSource$5(DataSource.scala:633)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.156626Z","level":"error","event":"\tat scala.util.Try$.apply(Try.scala:213)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.157980Z","level":"error","event":"\tat org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$lookupDataSource$4(DataSource.scala:633)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.158870Z","level":"error","event":"\tat scala.util.Failure.orElse(Try.scala:224)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.159526Z","level":"error","event":"\tat org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSource(DataSource.scala:633)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.160223Z","level":"error","event":"\t... 15 more","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:24.160896Z","level":"error","event":"","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:13:25.576352","level":"error","event":"Task failed with exception","logger":"task","error_detail":[{"exc_type":"CalledProcessError","exc_value":"Command '['python', 'dags/jobs/YFinance.py']' returned non-zero exit status 1.","exc_notes":[],"syntax_error":null,"is_cause":false,"frames":[{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/task_runner.py","lineno":825,"name":"run"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/task_runner.py","lineno":1088,"name":"_execute_task"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/bases/operator.py","lineno":408,"name":"wrapper"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/standard/operators/python.py","lineno":212,"name":"execute"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/standard/operators/python.py","lineno":235,"name":"execute_callable"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/callback_runner.py","lineno":81,"name":"run"},{"filename":"/opt/airflow/dags/yfinance_DAG.py","lineno":7,"name":"collect_data"},{"filename":"/usr/local/lib/python3.12/subprocess.py","lineno":571,"name":"run"}]}]}

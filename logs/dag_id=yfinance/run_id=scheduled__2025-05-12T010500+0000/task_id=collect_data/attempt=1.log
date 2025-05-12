@@ -1,0 +1,54 @@
+{"timestamp":"2025-05-12T01:05:01.288125","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager"}
+{"timestamp":"2025-05-12T01:05:01.289063","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/yfinance_DAG.py","logger":"airflow.models.dagbag.DagBag"}
+{"timestamp":"2025-05-12T01:05:11.506839Z","level":"info","event":":: loading settings :: url = jar:file:/home/airflow/.local/lib/python3.12/site-packages/pyspark/jars/ivy-2.5.1.jar!/org/apache/ivy/core/settings/ivysettings.xml","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:11.638317Z","level":"error","event":"Ivy Default Cache set to: /home/airflow/.ivy2/cache","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:11.651114Z","level":"error","event":"The jars for the packages stored in: /home/airflow/.ivy2/jars","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:11.651738Z","level":"error","event":"org.mongodb.spark#mongo-spark-connector_2.12 added as a dependency","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:11.653479Z","level":"error","event":":: resolving dependencies :: org.apache.spark#spark-submit-parent-80339bf7-1de4-4364-b06a-f460c50c6941;1.0","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:11.654232Z","level":"error","event":"\tconfs: [default]","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:11.844163Z","level":"error","event":"\tfound org.mongodb.spark#mongo-spark-connector_2.12;3.0.1 in central","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:11.893474Z","level":"error","event":"\tfound org.mongodb#mongodb-driver-sync;4.0.5 in central","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:11.954765Z","level":"error","event":"\tfound org.mongodb#bson;4.0.5 in central","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.006179Z","level":"error","event":"\tfound org.mongodb#mongodb-driver-core;4.0.5 in central","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.062755Z","level":"error","event":":: resolution report :: resolve 387ms :: artifacts dl 22ms","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.063674Z","level":"error","event":"\t:: modules in use:","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.064438Z","level":"error","event":"\torg.mongodb#bson;4.0.5 from central in [default]","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.065151Z","level":"error","event":"\torg.mongodb#mongodb-driver-core;4.0.5 from central in [default]","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.065893Z","level":"error","event":"\torg.mongodb#mongodb-driver-sync;4.0.5 from central in [default]","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.066592Z","level":"error","event":"\torg.mongodb.spark#mongo-spark-connector_2.12;3.0.1 from central in [default]","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.067228Z","level":"error","event":"\t---------------------------------------------------------------------","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.067865Z","level":"error","event":"\t|                  |            modules            ||   artifacts   |","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.068454Z","level":"error","event":"\t|       conf       | number| search|dwnlded|evicted|| number|dwnlded|","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.069116Z","level":"error","event":"\t---------------------------------------------------------------------","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.069855Z","level":"error","event":"\t|      default     |   4   |   0   |   0   |   0   ||   4   |   0   |","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.070562Z","level":"error","event":"\t---------------------------------------------------------------------","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.072363Z","level":"error","event":":: retrieving :: org.apache.spark#spark-submit-parent-80339bf7-1de4-4364-b06a-f460c50c6941","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.073427Z","level":"error","event":"\tconfs: [default]","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.087234Z","level":"error","event":"\t0 artifacts copied, 4 already retrieved (0kB/14ms)","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.447407Z","level":"error","event":"25/05/12 01:05:12 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.801987Z","level":"error","event":"Setting default log level to \"WARN\".","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:12.802843Z","level":"error","event":"To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.968946Z","level":"info","event":"Mengambil data saham AADI.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.969467Z","level":"info","event":"Data saham AADI.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.969817Z","level":"info","event":"Mengambil data saham AALI.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.970187Z","level":"info","event":"Data saham AALI.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.970484Z","level":"info","event":"Mengambil data saham ABBA.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.970837Z","level":"info","event":"Data saham ABBA.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.971155Z","level":"info","event":"Mengambil data saham ABDA.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.971493Z","level":"info","event":"Data saham ABDA.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.971796Z","level":"info","event":"Mengambil data saham ABMM.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.972115Z","level":"info","event":"Data saham ABMM.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.972400Z","level":"info","event":"Semua data saham selesai diproses!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.972699Z","level":"error","event":"\r[Stage 0:>                                                          (0 + 1) / 1]\r\r                                                                                \rTraceback (most recent call last):","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.972974Z","level":"error","event":"  File \"/opt/airflow/dags/jobs/YFinance.py\", line 101, in <module>","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.973311Z","level":"error","event":"    .save()","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.973627Z","level":"error","event":"     ^^^^^^","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.973939Z","level":"error","event":"  File \"/home/airflow/.local/lib/python3.12/site-packages/pyspark/sql/readwriter.py\", line 1461, in save","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.974321Z","level":"error","event":"    self._jwrite.save()","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.974645Z","level":"error","event":"  File \"/home/airflow/.local/lib/python3.12/site-packages/py4j/java_gateway.py\", line 1322, in __call__","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.974973Z","level":"error","event":"    return_value = get_return_value(","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.975290Z","level":"error","event":"                   ^^^^^^^^^^^^^^^^^","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.975677Z","level":"error","event":"  File \"/home/airflow/.local/lib/python3.12/site-packages/pyspark/errors/exceptions/captured.py\", line 185, in deco","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.976031Z","level":"error","event":"    raise converted from None","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:28.980099Z","level":"error","event":"pyspark.errors.exceptions.captured.UnsupportedOperationException: MongoCollection already exists","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T01:05:29.686598","level":"error","event":"Task failed with exception","logger":"task","error_detail":[{"exc_type":"CalledProcessError","exc_value":"Command '['python', 'dags/jobs/YFinance.py']' returned non-zero exit status 1.","exc_notes":[],"syntax_error":null,"is_cause":false,"frames":[{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/task_runner.py","lineno":825,"name":"run"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/task_runner.py","lineno":1088,"name":"_execute_task"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/bases/operator.py","lineno":408,"name":"wrapper"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/standard/operators/python.py","lineno":212,"name":"execute"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/providers/standard/operators/python.py","lineno":235,"name":"execute_callable"},{"filename":"/home/airflow/.local/lib/python3.12/site-packages/airflow/sdk/execution_time/callback_runner.py","lineno":81,"name":"run"},{"filename":"/opt/airflow/dags/yfinance_DAG.py","lineno":14,"name":"<lambda>"},{"filename":"/usr/local/lib/python3.12/subprocess.py","lineno":571,"name":"run"}]}]}

@@ -1,0 +1,18 @@
+{"timestamp":"2025-05-12T02:24:01.280324","level":"info","event":"DAG bundles loaded: dags-folder","logger":"airflow.dag_processing.bundles.manager.DagBundlesManager"}
+{"timestamp":"2025-05-12T02:24:01.281330","level":"info","event":"Filling up the DagBag from /opt/airflow/dags/yfinance_DAG.py","logger":"airflow.models.dagbag.DagBag"}
+{"timestamp":"2025-05-12T02:24:08.115539Z","level":"error","event":"25/05/12 02:24:08 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:24:08.389450Z","level":"error","event":"Setting default log level to \"WARN\".","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:24:08.402212Z","level":"error","event":"To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).","chan":"stderr","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.303148Z","level":"info","event":"Mengambil data saham AADI.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.304181Z","level":"info","event":"Data saham AADI.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.304921Z","level":"info","event":"Mengambil data saham AALI.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.305823Z","level":"info","event":"Data saham AALI.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.307678Z","level":"info","event":"Mengambil data saham ABBA.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.308930Z","level":"info","event":"Data saham ABBA.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.309624Z","level":"info","event":"Mengambil data saham ABDA.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.310358Z","level":"info","event":"Data saham ABDA.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.311735Z","level":"info","event":"Mengambil data saham ABMM.JK dari yfinance...","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.312418Z","level":"info","event":"Data saham ABMM.JK berhasil disimpan ke MongoDB!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:39.313043Z","level":"info","event":"Semua data saham selesai diproses!","chan":"stdout","logger":"task"}
+{"timestamp":"2025-05-12T02:24:40.350430","level":"info","event":"Done. Returned value was: None","logger":"airflow.task.operators.airflow.providers.standard.operators.python.PythonOperator"}
+{"timestamp":"2025-05-12T02:24:40.974615Z","level":"error","event":"\r[Stage 0:>                                                          (0 + 0) / 1]\r\r[Stage 0:>                                                          (0 + 1) / 1]\r\r                                                                                \r\r[Stage 1:>                                                          (0 + 1) / 1]\r\r                                                                                \r\r[Stage 4:>                                                          (0 + 1) / 1]\r\r                                                                                \r\r[Stage 7:>                                                          (0 + 1) / 1]","chan":"stderr","logger":"task"}

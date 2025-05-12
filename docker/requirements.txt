@@ -1,0 +1,6 @@
+apache-airflow
+python-dotenv
+pyspark
+pandas
+pymongo
+yfinance

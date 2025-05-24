@@ -1,15 +1,12 @@
 import os
-import subprocess
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_date, year, month, first, last, max, min, sum
 
-load_dotenv('/opt/airflow/dags/.env')
+load_dotenv('/opt/airflow/jobs/.env')
 
 MONGODB_URI = os.getenv("MONGODB_URI")
 MONGODB_DB = os.getenv("MONGODB_DB")
-
-subprocess.run(["python", "/opt/airflow/dags/jobs/YFinance/_scrap.py", "--period", "1mo"], check=True)
 
 _spark = SparkSession.builder \
     .appName("ReadMongo") \
@@ -24,12 +21,14 @@ df = _spark.read.format("mongo") \
     .option("uri", MONGODB_URI) \
     .option("database", MONGODB_DB) \
     .option("collection", "yfinance") \
-    .load().withColumn("date", to_date(col("Date")))
+    .load().withColumn("Date", to_date(col("Date"))) \
+    .withColumn("Year", year("Date")).withColumn("Month", month("Date"))
 
-m_df = df.groupBy(
-    "ticker",
-    year("date").alias("Year"),
-    month("date").alias("Month")
+last_month = df.select("Year", "Month").distinct().orderBy(col("Year").desc(), col("Month").desc()).first()
+last_month_df = df.filter((col("Year") == last_month[0]) & (col("Month") == last_month[1]))
+
+m_df = last_month_df.groupBy(
+    "ticker", "Year", "Month"
 ).agg(
     first("Open").alias("Open"),
     max("High").alias("High"),

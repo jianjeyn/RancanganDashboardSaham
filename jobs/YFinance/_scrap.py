@@ -1,7 +1,6 @@
 import os
 import time
 import pymongo
-import argparse
 import yfinance as yf
 from dotenv import load_dotenv
 
@@ -10,16 +9,9 @@ load_dotenv('/opt/airflow/jobs/.env')
 MONGODB_URI = os.getenv("MONGODB_URI")
 MONGODB_DB = os.getenv("MONGODB_DB")
 
-parser = argparse.ArgumentParser(description="Scrap data from yfinance")
-parser.add_argument("--period", type=str)
-parser.add_argument("--collection", type=str)
-
-period = parser.parse_args().period
-collection = parser.parse_args().collection
-
 client = pymongo.MongoClient(MONGODB_URI)
 db = client[MONGODB_DB]
-collection = db[collection]
+collection = db["yfinance"]
 
 tickers = [
     'AADI.JK',
@@ -34,7 +26,7 @@ for ticker in tickers:
 
     try:
         saham = yf.Ticker(ticker)
-        data = saham.history(period=period)
+        data = saham.history(period="1d")
 
         if data.empty:
             print(f"Data kosong untuk {ticker}")

@@ -8,7 +8,7 @@ def collect_data():
 
 with DAG(
     dag_id="yfinance_yearly",
-    start_date=datetime(2025, 1, 1),
+    start_date=datetime(2024, 1, 1),
     schedule="0 20 31 12 *",
     catchup=False
 ) as dag:

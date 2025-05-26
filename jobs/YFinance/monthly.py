@@ -1,4 +1,5 @@
 import os
+from pendulum import now
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_date, year, month, first, last, max, min, sum
@@ -24,8 +25,8 @@ df = _spark.read.format("mongo") \
     .load().withColumn("Date", to_date(col("Date"))) \
     .withColumn("Year", year("Date")).withColumn("Month", month("Date"))
 
-last_month = df.select("Year", "Month").distinct().orderBy(col("Year").desc(), col("Month").desc()).first()
-last_month_df = df.filter((col("Year") == last_month[0]) & (col("Month") == last_month[1]))
+last_time = now("Asia/Jakarta").subtract(months=1)
+last_month_df = df.filter((col("Year") == last_time.year) & (col("Month") == last_time.month))
 
 m_df = last_month_df.groupBy(
     "ticker", "Year", "Month"

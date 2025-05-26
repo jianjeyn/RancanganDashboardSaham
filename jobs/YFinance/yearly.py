@@ -1,4 +1,5 @@
 import os
+from pendulum import now
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_date, year, first, last, max, min, sum
@@ -24,7 +25,7 @@ df = _spark.read.format("mongo") \
     .load().withColumn("Date", to_date(col("Date"))) \
     .withColumn("Year", year("Date"))
 
-last_year = df.select("Year").distinct().orderBy(col("Year").desc()).first()[0]
+last_year = now("Asia/Jakarta").subtract(years=1).year
 last_year_df = df.filter(col("Year") == last_year)
 
 m_df = last_year_df.groupBy(

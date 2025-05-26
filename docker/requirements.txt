@@ -1,6 +1,7 @@
 apache-airflow
 python-dotenv
-pyspark
+pendulum
+pyspark==3.5.5
 pandas
 pymongo
 yfinance

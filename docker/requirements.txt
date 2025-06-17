@@ -5,3 +5,5 @@ pyspark==3.5.5
 pandas
 pymongo
 yfinance
+selenium
+xmltodict==0.13.0

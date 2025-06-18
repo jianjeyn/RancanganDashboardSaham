@@ -9,10 +9,6 @@ load_dotenv('/opt/airflow/jobs/.env')
 MONGODB_URI = os.getenv("MONGODB_URI")
 MONGODB_DB = os.getenv("MONGODB_DB")
 
-client = pymongo.MongoClient(MONGODB_URI)
-db = client[MONGODB_DB]
-collection = db["yfinance"]
-
 tickers = [
     'AADI.JK',
     'AALI.JK',
@@ -21,15 +17,25 @@ tickers = [
     'ABMM.JK',
 ]
 
+try:
+    client = pymongo.MongoClient(MONGODB_URI)
+    db = client[MONGODB_DB]
+    collection = db["yfinance"]
+
+except Exception as e:
+    print(f"[❌] Error connecting to MongoDB: {e}")
+    exit(1)
+
+
 for ticker in tickers:
-    print(f"Mengambil data saham {ticker} dari yfinance...")
+    print(f"Collecting data for {ticker}...")
 
     try:
         saham = yf.Ticker(ticker)
         data = saham.history(period="1d")
 
         if data.empty:
-            print(f"Data kosong untuk {ticker}")
+            print(f"No data found for {ticker}. Skipping...")
             continue
 
         data.reset_index(inplace=True)
@@ -37,11 +43,11 @@ for ticker in tickers:
         json_saham = [{"ticker": ticker, **record} for record in json_saham]
 
         collection.insert_many(json_saham)
-        print(f"Data saham {ticker} berhasil disimpan ke MongoDB!")
+        print(f"Data for {ticker} successfully inserted into MongoDB.")
 
     except Exception as e:
-        print(f"ERROR: Gagal mengambil data {ticker}: {e}")
+        print(f"[❌] Error collecting data for {ticker}: {e}")
 
     time.sleep(1)
 
-print("Semua data saham selesai diproses!")
+print("Data collection completed.")

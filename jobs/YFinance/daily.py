@@ -9,7 +9,7 @@ load_dotenv('/opt/airflow/jobs/.env')
 MONGODB_URI = os.getenv("MONGODB_URI")
 MONGODB_DB = os.getenv("MONGODB_DB")
 
-subprocess.run(["python", "jobs/YFinance/_scrap.py"], check=True)
+subprocess.run(["python", "jobs/YFinance/_scrape.py"], check=True)
 
 _spark = SparkSession.builder \
     .appName("ReadMongo") \

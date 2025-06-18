@@ -4,11 +4,11 @@ from datetime import datetime
 from airflow.operators.python import PythonOperator
 
 def collect_data():
-    subprocess.run(["python", "jobs/IQplus/daily.py"], check=True)
+    subprocess.run(["python", "jobs/IQplus/_scrape.py"], check=True)
 
 with DAG(
-    dag_id="iqplus_daily",
-    start_date=datetime(2024, 1, 1),
+    dag_id="iqplus",
+    start_date=datetime(2020, 1, 1),
     schedule="0 22 * * *",
     catchup=False
 ) as dag:

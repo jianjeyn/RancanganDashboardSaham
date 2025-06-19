@@ -2,7 +2,7 @@ FROM apache/airflow:3.0.0
 
 USER root
 
-# Install system dependencies + Chromium + ChromeDriver
+# Install semua dependencies dalam satu layer untuk mengurangi kompleksitas
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
@@ -30,17 +30,20 @@ RUN apt-get update && apt-get install -y \
     libxrandr2 \
     xdg-utils \
     --no-install-recommends && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* && \
+    rm -rf /var/tmp/*
+
+USER airflow
 
 # Set JAVA_HOME
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
-USER airflow
+# Copy requirements file
+COPY ./docker/requirements.txt /opt/airflow/requirements.txt
 
-# Install pip and Python dependencies
-RUN curl -sSL https://bootstrap.pypa.io/pip/3.8/get-pip.py | python3 && \
-    pip install --no-cache-dir --upgrade pip setuptools wheel
-
-COPY ./docker/requirements.txt /opt/airflow/
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r /opt/airflow/requirements.txt

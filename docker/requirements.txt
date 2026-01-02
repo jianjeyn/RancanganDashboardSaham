@@ -4,6 +4,8 @@ pendulum
 pyspark==3.5.5
 pandas
 pymongo
-yfinance
+yfinance==0.2.18
 selenium
 xmltodict==0.13.0
+transformers
+torch

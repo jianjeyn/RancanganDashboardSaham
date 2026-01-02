@@ -40,6 +40,8 @@ USER airflow
 # Set JAVA_HOME
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/lib/chromium/chromedriver
 
 # Copy requirements file
 COPY ./docker/requirements.txt /opt/airflow/requirements.txt

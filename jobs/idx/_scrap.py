@@ -10,6 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from dotenv import load_dotenv
+from selenium.common.exceptions import StaleElementReferenceException
 
 load_dotenv('/opt/airflow/jobs/.env')
 
@@ -19,8 +20,105 @@ MONGODB_DB = os.getenv("MONGODB_DB")
 client = pymongo.MongoClient(MONGODB_URI)
 db = client[MONGODB_DB]
 
+def debug_xbrl_structure(xbrl_dict, prefix="", max_depth=3, current_depth=0):
+    """Debug function to inspect XBRL structure"""
+    if current_depth >= max_depth:
+        return
+    
+    if isinstance(xbrl_dict, dict):
+        for key, value in xbrl_dict.items():
+            if key.startswith('idx-cor:') and not key.endswith('Member'):
+                if isinstance(value, (str, int, float)):
+                    print(f"[DEBUG] {prefix}{key}: {value} (type: {type(value).__name__})")
+                elif isinstance(value, list) and len(value) > 0:
+                    if isinstance(value[0], dict) and '#text' in value[0]:
+                        print(f"[DEBUG] {prefix}{key}: {value[0]['#text']} (from list[0]['#text'])")
+                    elif isinstance(value[0], (str, int, float)):
+                        print(f"[DEBUG] {prefix}{key}: {value[0]} (from list[0])")
+                elif isinstance(value, dict) and '#text' in value:
+                    print(f"[DEBUG] {prefix}{key}: {value['#text']} (from dict['#text'])")
+            
+            if isinstance(value, dict) and current_depth < max_depth - 1:
+                debug_xbrl_structure(value, prefix + "  ", max_depth, current_depth + 1)
+    elif isinstance(xbrl_dict, list) and len(xbrl_dict) > 0:
+        debug_xbrl_structure(xbrl_dict[0], prefix, max_depth, current_depth)
+
+def extract_company_name_from_xbrl(xbrl_dict):
+    """Extract company name/ticker from XBRL entity identifier"""
+    print("[DEBUG] Extracting company name from XBRL...")
+    
+    # Handle different root structures
+    if 'xbrl' in xbrl_dict:
+        xbrl_root = xbrl_dict['xbrl']
+    elif 'xbrli:xbrl' in xbrl_dict:
+        xbrl_root = xbrl_dict['xbrli:xbrl']
+    else:
+        xbrl_root = xbrl_dict
+    
+    # print(f"[DEBUG] XBRL root keys: {list(xbrl_root.keys()) if isinstance(xbrl_root, dict) else 'not a dict'}")
+    
+    # Look for context elements
+    try:
+        if 'context' in xbrl_root:
+            contexts = xbrl_root['context']
+            # print(f"[DEBUG] Found context, type: {type(contexts)}")
+            
+            # Handle both single context and list of contexts
+            if isinstance(contexts, list):
+                # Take the first context
+                context = contexts[0]
+            else:
+                context = contexts
+            
+            # print(f"[DEBUG] Context keys: {list(context.keys()) if isinstance(context, dict) else 'not a dict'}")
+            
+            if isinstance(context, dict) and 'entity' in context:
+                entity = context['entity']
+                # print(f"[DEBUG] Entity keys: {list(entity.keys()) if isinstance(entity, dict) else 'not a dict'}")
+                
+                if isinstance(entity, dict) and 'identifier' in entity:
+                    identifier = entity['identifier']
+                    # print(f"[DEBUG] Identifier data: {identifier}, type: {type(identifier)}")
+                    
+                    if isinstance(identifier, dict):
+                        # Check if it has the idx.co.id scheme
+                        scheme = identifier.get('@scheme', '')
+                        if 'idx.co.id' in scheme:
+                            ticker = identifier.get('#text', '').strip().upper()
+                            if ticker:
+                                # print(f"[DEBUG] Found ticker from XBRL: {ticker}")
+                                return ticker
+                    elif isinstance(identifier, str):
+                        # Sometimes identifier is directly a string
+                        ticker = identifier.strip().upper()
+                        if ticker:
+                            # print(f"[DEBUG] Found ticker from XBRL (direct string): {ticker}")
+                            return ticker
+        
+        print("[DEBUG] No entity identifier found in XBRL")
+        return None
+        
+    except Exception as e:
+        # print(f"[DEBUG] Error extracting company name: {e}")
+        import traceback
+        # print(f"[DEBUG] Full traceback: {traceback.format_exc()}")
+        return None
+
 def extract_financials(xbrl_dict):
-    """Extract financial data from XBRL dictionary"""
+    """Extract financial data from XBRL dictionary, with debug info for found/missing tags"""
+    print("[DEBUG] Starting extract_financials...")
+    
+    if 'xbrli:xbrl' in xbrl_dict:
+        xbrl_dict = xbrl_dict['xbrli:xbrl']
+    elif 'xbrl' in xbrl_dict:
+        xbrl_dict = xbrl_dict['xbrl']
+    
+    # print(f"[DEBUG] XBRL root keys: {list(xbrl_dict.keys())[:10]}...")  # Show first 10 keys
+    
+    # Debug the structure
+    print("[DEBUG] Analyzing XBRL structure for idx-cor tags...")
+    debug_xbrl_structure(xbrl_dict)
+    
     tags = {
         "Revenue": ["idx-cor:SalesAndRevenue"],
         "GrossProfit": ["idx-cor:GrossProfit"],
@@ -40,23 +138,115 @@ def extract_financials(xbrl_dict):
 
     for key, possible_tags in tags.items():
         value = None
+        found_tag = None
         for tag in possible_tags:
+            # print(f"[DEBUG] Looking for tag: {tag}")
             if tag in xbrl_dict:
                 data = xbrl_dict[tag]
-                # Kalau list, ambil object pertama
+                found_tag = tag
+                # print(f"[DEBUG] Found tag {tag}, data type: {type(data)}, data: {str(data)[:200]}...")
+                
+                # Handle different data structures
                 if isinstance(data, list):
-                    data = data[0]
-                # Ambil nilai dari '#text'
-                if isinstance(data, dict) and '#text' in data:
-                    value = data['#text']
-                elif isinstance(data, str):
+                    # print(f"[DEBUG] Tag {tag} is a list with {len(data)} items")
+                    # Look for the most recent data (usually the first or last item)
+                    for item in data:
+                        if isinstance(item, dict):
+                            # Look for contextRef that contains CurrentYear
+                            context_ref = item.get('@contextRef', '')
+                            if 'CurrentYear' in context_ref:
+                                if '#text' in item:
+                                    value = item['#text']
+                                    # print(f"[DEBUG] Found current year value: {value}")
+                                    break
+                        elif isinstance(item, (str, int, float)):
+                            value = item
+                            # print(f"[DEBUG] Found direct value from list: {value}")
+                            break
+                    
+                    # If no CurrentYear found, take the first item
+                    if value is None and data:
+                        item = data[0]
+                        if isinstance(item, dict) and '#text' in item:
+                            value = item['#text']
+                            # print(f"[DEBUG] Using first item value: {value}")
+                        elif isinstance(item, (str, int, float)):
+                            value = item
+                            # print(f"[DEBUG] Using first item direct value: {value}")
+                
+                elif isinstance(data, dict):
+                    # print(f"[DEBUG] Tag {tag} is a dict")
+                    if '#text' in data:
+                        value = data['#text']
+                        # print(f"[DEBUG] Found #text value: {value}")
+                    else:
+                        # Look for contextRef that contains CurrentYear
+                        for sub_key, sub_value in data.items():
+                            if isinstance(sub_value, dict) and '#text' in sub_value:
+                                context_ref = sub_value.get('@contextRef', '')
+                                if 'CurrentYear' in context_ref:
+                                    value = sub_value['#text']
+                                    # print(f"[DEBUG] Found current year nested value: {value}")
+                                    break
+                        
+                        # If still no value, try to get any #text value
+                        if value is None:
+                            for sub_value in data.values():
+                                if isinstance(sub_value, dict) and '#text' in sub_value:
+                                    value = sub_value['#text']
+                                    # print(f"[DEBUG] Found any nested #text value: {value}")
+                                    break
+                
+                elif isinstance(data, (str, int, float)):
                     value = data
-                break  # tag sudah ketemu, lanjut ke key berikutnya
+                    # print(f"[DEBUG] Direct value: {value}")
+                
+                if value is not None:
+                    break  # tag sudah ketemu, lanjut ke key berikutnya
+        
+        if found_tag:
+            print(f"[extract_financials] Tag ditemukan untuk '{key}': {found_tag} → {value}")
+        else:
+            print(f"[extract_financials] Tag TIDAK ditemukan untuk '{key}' (tags dicoba: {possible_tags})")
         result[key] = value
 
     return result
 
-def scrape_idx_data(year, period="annual"):
+def wait_until_file_downloaded(filepath, timeout=20):
+    for _ in range(timeout):
+        if os.path.exists(filepath) and not filepath.endswith(".crdownload"):
+            return True
+        time.sleep(1)
+    return False
+
+def wait_until_file_downloaded(filepath, timeout=20):
+    for _ in range(timeout):
+        if os.path.exists(filepath) and not filepath.endswith(".crdownload"):
+            return True
+        time.sleep(1)
+    return False
+
+def safe_click(driver, element, fallback=True):
+    """Mencoba klik elemen dan menangani stale element exception."""
+    try:
+        driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
+        time.sleep(1)
+        driver.execute_script("arguments[0].click();", element)
+        return True
+    except StaleElementReferenceException as e:
+        print(f"[safe_click] StaleElementReferenceException: {e}")
+        if fallback:
+            try:
+                element.click()
+                return True
+            except Exception as fallback_err:
+                print(f"[safe_click] Fallback click failed: {fallback_err}")
+        return False
+    except Exception as e:
+        print(f"[safe_click] General click exception: {e}")
+        return False
+
+def scrape_idx_data(year, period):
     """Scrape IDX data for specific year and period
     
     Args:
@@ -182,39 +372,46 @@ def scrape_idx_data(year, period="annual"):
             
             if year_input:
                 driver.execute_script("arguments[0].click();", year_input)
+                  # Pilih periode laporan berdasarkan parameter
+                print(f"[PERIOD] Selecting period: {period}")
                 
-                # Pilih periode laporan berdasarkan parameter
                 if period == "quarterly":
-                    # Untuk quarterly, pilih triwulan 1
+                    # Untuk quarterly, pilih triwulan 1 (value="tw1", id="period0")
                     period_selectors = [
-                        "//input[@value='Triwulan 1']",
-                        "//input[contains(@id, 'quarterly') and contains(@value, '1')]",
-                        "//input[contains(@name, 'periode') and contains(@value, 'Triwulan 1')]"
+                        "//input[@value='tw1']",  # Exact value match
+                        "//input[@id='period0']", # Exact ID match
+                        "//input[@name='period'][@value='tw1']"  # Name + value match
                     ]
                     
                     for selector in period_selectors:
                         try:
                             period_elements = driver.find_elements(By.XPATH, selector)
+                            print(f"[PERIOD] Selector '{selector}': Found {len(period_elements)} elements")
                             if period_elements:
                                 driver.execute_script("arguments[0].click();", period_elements[0])
+                                print(f"[PERIOD] ✓ Successfully selected Triwulan 1 (quarterly)")
                                 break
                         except Exception as e:
+                            print(f"[PERIOD] Error with selector '{selector}': {e}")
                             continue
                 else:  # annual
-                    # Pilih laporan tahunan
+                    # Pilih laporan tahunan (value="audit", id="period3")
                     period_selectors = [
-                        "//input[@value='Tahunan']",
-                        "//input[contains(@id, 'annual')]",
-                        "//input[contains(@name, 'periode') and contains(@value, 'Tahunan')]"
+                        "//input[@value='audit']",  # Exact value match 
+                        "//input[@id='period3']",   # Exact ID match
+                        "//input[@name='period'][@value='audit']"  # Name + value match
                     ]
                     
                     for selector in period_selectors:
                         try:
                             period_elements = driver.find_elements(By.XPATH, selector)
+                            print(f"[PERIOD] Selector '{selector}': Found {len(period_elements)} elements")
                             if period_elements:
                                 driver.execute_script("arguments[0].click();", period_elements[0])
+                                print(f"[PERIOD] ✓ Successfully selected Tahunan (annual)")
                                 break
                         except Exception as e:
+                            print(f"[PERIOD] Error with selector '{selector}': {e}")
                             continue
                 
                 # Pilih laporan audit (saham)
@@ -250,109 +447,193 @@ def scrape_idx_data(year, period="annual"):
                     except Exception as e:
                         continue
                 
-                time.sleep(5)
+                time.sleep(5)                # Process download links (limited to first 5 for testing)
+                download_links = driver.find_elements(By.XPATH, "//a[contains(@href, 'instance.zip')]")
+                print(f"Jumlah link download ditemukan: {len(download_links)}")
                 
-                # Process download buttons (limited to first 5 for testing)
-                download_buttons = driver.find_elements(By.XPATH, "//a[contains(@href, 'instance.zip')]")
-                print(f"Jumlah tombol download ditemukan: {len(download_buttons)}")
-                download_buttons = download_buttons[:5]
-                
-                for i, button in enumerate(download_buttons):
+                download_urls = []
+                for link in download_links[:5]:  # Hanya ambil 5 teratas
                     try:
-                        print(f"Memproses tombol download {download_buttons}...")
+                        url = link.get_attribute('href')
+                        if not url.startswith("http"):
+                            url = f"https://www.idx.co.id{url}"
+                        download_urls.append(url)
+                    except Exception as e:
+                        print(f"Error getting URL from link: {e}")
+                        continue
 
-                        print(f"Mengunduh file {i+1}/{len(download_buttons)} untuk tahun {year}...")
+                print(f"URLs yang akan didownload: {len(download_urls)}")
+                  # Process each download URL by finding the element fresh each time to avoid stale reference
+                for i in range(len(download_urls)):
+                    try:
+                        download_url = download_urls[i]
+                        print(f"Memproses download {i+1}/{len(download_urls)} untuk tahun {year}...")
+                        print(f"URL: {download_url}")
 
-                        # Cari elemen box-title di atas tombol download
-                        try:
-                            container = button.find_element(By.XPATH, "./ancestor::div[contains(@class, 'container')]")
-                            box_title = container.find_element(By.XPATH, ".//div[contains(@class, 'box-title')]")
-                            ticker_span = box_title.find_element(By.XPATH, ".//span")
-                            company_name = ticker_span.text.strip().upper()
-
-                            print(f"✔ Ditemukan emiten: {company_name}")
-                        except Exception as e:
-                            print(f"❌ Gagal ambil nama emiten dari box-title: {e}")
-                            continue
-
-                        if company_name not in tickers:
-                            print(f"Lewatkan {company_name} karena tidak ada di daftar tickers.")
-                            continue
+                        # Find the download element fresh each time to avoid stale reference
+                        download_element = None
                         
-                        # Download file
-                        download_url = button.get_attribute('href')
-                        if not download_url.startswith("http"):
-                            download_url = f"https://www.idx.co.id{download_url}"
-
-                        # Ekstrak ticker dari URL path
-                        ticker_from_url = download_url.split("/")[-2].upper()
-
-                        # Lanjutkan hanya jika ada di daftar tickers
-                        if ticker_from_url not in tickers:
-                            print(f"Lewatkan {ticker_from_url} karena tidak ada di daftar tickers.")
+                        # Try to find element by exact URL match
+                        try:
+                            relative_url = download_url.replace('https://www.idx.co.id', '')
+                            download_element = driver.find_element(By.XPATH, f"//a[@href='{relative_url}']")
+                            print(f"✓ Found element by exact URL match")
+                        except:
+                            # Fallback: find by partial URL match or index
+                            try:
+                                all_instance_links = driver.find_elements(By.XPATH, "//a[contains(@href, 'instance.zip')]")
+                                if i < len(all_instance_links):
+                                    download_element = all_instance_links[i]
+                                    print(f"✓ Found element by index {i}")
+                                else:
+                                    print(f"✗ Element index {i} not found")
+                                    continue
+                            except Exception as e:
+                                print(f"✗ Failed to find element: {e}")
+                                continue
+                        
+                        if not download_element:
+                            print(f"✗ Could not find download element for URL: {download_url}")
                             continue
 
-                        print(f"✔ Ditemukan emiten dari URL: {ticker_from_url}")
-                        print(f"🔗 Download URL: {download_url}")
+                        # Skip checking company name from web scraping - kita akan ambil dari XBRL
+                        # Langsung download file dulu                        
+                        # Download file
+                        print(f"Mengunduh file ke-{i+1} ({year})...")
+                        existing_files = set(os.listdir(download_folder))
+                        driver.execute_script("arguments[0].click();", download_element)
+                        time.sleep(3)
 
-                        # Cek nama file dari URL
-                        file_name = download_url.split("/")[-1]
-                        print(f"Nama file yang akan di-download: {file_name}")
+                        # Cari file baru yang terunduh
+                        new_files = set(os.listdir(download_folder)) - existing_files
+                        if not new_files:
+                            print("ERROR: Download gagal atau tidak ditemukan!")
+                            continue
 
-                        response = requests.get(download_url)
-                        # Debug: print nama file yang berhasil di-download
-                        print(f"DEBUG: File berhasil di-download: {file_name}")
+                        # Ambil nama file zip yang baru
+                        file_name = None
+                        for f in new_files:
+                            if f.endswith('.zip'):
+                                file_name = f
+                                break
+                        if not file_name:
+                            print("ERROR: File ZIP tidak ditemukan di file baru!")
+                            continue
 
-                        zip_path = os.path.join(download_folder, f"{ticker_from_url}_{year}.zip")
-                        with open(zip_path, "wb") as f:
-                            f.write(response.content)
-
-                        print(f"📏 Ukuran file: {os.path.getsize(zip_path)} byte")
+                        # Tunggu file dengan nama asli selesai di-download
+                        original_zip_path = os.path.join(download_folder, file_name)
+                        print(f"DEBUG: Menunggu file di path: {original_zip_path}")
+                        if wait_until_file_downloaded(original_zip_path):
+                            print(f"✔ File berhasil diunduh: {file_name}")
+                        else:
+                            print(f"⛔ File tidak ditemukan: {file_name}")
+                            continue
                         
                         # Find downloaded file
-                        zip_files = [f for f in os.listdir(download_folder) if f.endswith('.zip')]
-                        print(f"DEBUG: File ZIP yang ada di folder download: {zip_files}")
+                        try:
+                            zip_files = [f for f in os.listdir(download_folder) if f.endswith('.zip')]
+                            print(f"DEBUG: File ZIP yang ada di folder download: {zip_files}")
+                        except Exception as e:
+                            print(f"[DEBUG] Error membaca folder download: {e}")
+                            continue
+
                         if zip_files:
-                            latest_zip = max(zip_files, key=lambda x: os.path.getctime(os.path.join(download_folder, x)))
-                            zip_path = os.path.join(download_folder, latest_zip)
+                            try:
+                                latest_zip = max(zip_files, key=lambda x: os.path.getctime(os.path.join(download_folder, x)))
+                                zip_path = os.path.join(download_folder, latest_zip)
+                            except Exception as e:
+                                print(f"[DEBUG] Error menentukan file ZIP terbaru: {e}")
+                                continue
                             
                             # Extract and process XBRL
-                            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                                extract_folder = os.path.join(download_folder, f'extract_{i}')
-                                zip_ref.extractall(extract_folder)
-                                
-                                # Find XBRL files
-                                for root, dirs, files in os.walk(extract_folder):
+                            try:
+                                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                                    extract_folder = os.path.join(download_folder, f'extract_{i}')
+                                    zip_ref.extractall(extract_folder)
+                            except Exception as e:
+                                print(f"[DEBUG] Error extract ZIP {zip_path}: {e}")
+                                continue
+                            
+                            # Find XBRL files
+                            print("Isi folder setelah extract:")
+                            found_valid_xbrl = False
+                            try:
+                                for root, _, files in os.walk(extract_folder):
                                     for file in files:
                                         if file.endswith('.xbrl'):
                                             xbrl_path = os.path.join(root, file)
+                                            print(f"DEBUG: Ditemukan file XBRL: {xbrl_path}")
+                                            
+                                            # Quick check what ticker is in this file
+                                            quick_ticker = quick_check_xbrl_ticker(xbrl_path)
+                                            if quick_ticker:
+                                                print(f"🔍 QUICK CHECK: File contains ticker '{quick_ticker}'")
+                                            else:
+                                                print(f"🔍 QUICK CHECK: Could not determine ticker from file")
                                             
                                             try:
                                                 with open(xbrl_path, 'r', encoding='utf-8') as xbrl_file:
-                                                    xbrl_data = xmltodict.parse(xbrl_file.read())
+                                                    xbrl_content = xbrl_file.read()
+                                                    print("DEBUG XBRL raw content (first 1000 chars):", xbrl_content[:1000])
+                                                    xbrl_data = xmltodict.parse(xbrl_content)
+                                                    print("DEBUG XBRL root keys:", xbrl_data.keys())
+                                                      # Extract company name dari XBRL
+                                                    company_name = extract_company_name_from_xbrl(xbrl_data)
+                                                    
+                                                    if not company_name:
+                                                        print("❌ Tidak bisa mendapatkan nama emiten dari XBRL, skip file ini")
+                                                        continue
+                                                    
+                                                    # Validasi apakah ticker mengandung salah satu dari target tickers
+                                                    matched_ticker = is_valid_ticker(company_name, tickers)
+                                                    if not matched_ticker:
+                                                        print(f"❌ Ticker '{company_name}' tidak mengandung target tickers {tickers}, skip file ini")
+                                                        continue
+                                                    
+                                                    print(f"✔ Ditemukan emiten valid dari XBRL: '{company_name}' → matched ticker: '{matched_ticker}'")
+                                                    
+                                                    # Extract financial data
                                                     financials = extract_financials(xbrl_data)
                                                     
                                                     record = {
-                                                        "emitten": company_name,
+                                                        "emitten": matched_ticker,  # Use the matched ticker instead of full company_name
                                                         "year": year,
                                                         "financials": financials
                                                     }
-                                                    print(f"Record for {company_name} tahun {year}: {record}")
+                                                    print(f"Record for {matched_ticker} tahun {year}: {record}")
                                                     scraped_data.append(record)
+                                                    found_valid_xbrl = True
                                                     break
                                             except Exception as e:
-                                                print(f"Error processing XBRL {file}: {e}")
+                                                print(f"[DEBUG] Error processing XBRL {file}: {e}")
                                                 continue
-                              # Cleanup
-                            os.remove(zip_path)
-                            if os.path.exists(extract_folder):
-                                shutil.rmtree(extract_folder)
+                                    if found_valid_xbrl:
+                                        break
+                            except Exception as e:
+                                print(f"[DEBUG] Error saat mencari file XBRL di folder extract: {e}")
+                                continue
+                            #   # Cleanup
+                            # os.remove(zip_path)
+                            # if os.path.exists(extract_folder):
+                            #     shutil.rmtree(extract_folder)
                         
-                        # Go back to main page
-                        driver.get("https://www.idx.co.id/id/perusahaan-tercatat/laporan-keuangan-dan-tahunan")
-                        time.sleep(2)                        
+                        else:
+                            print(f"[DEBUG] Tidak ada file ZIP ditemukan setelah download.")
+                            continue                        # Go back to main page and re-apply filters for next iteration
+                        try:
+                            driver.get("https://www.idx.co.id/id/perusahaan-tercatat/laporan-keuangan-dan-tahunan")
+                            time.sleep(2)
+                            
+                            # Re-apply filters to ensure we get fresh elements
+                            if i < len(download_urls) - 1:  # Don't re-apply filters for the last iteration
+                                reapply_filters(driver, year, period)
+                                
+                        except Exception as e:
+                            print(f"[DEBUG] Error returning to main page or re-applying filters: {e}")
+                            continue
                     except Exception as e:
                         print(f"Error processing download {i+1}: {e}")
+                        print(traceback.format_exc())
                         continue
                 
     except Exception as e:
@@ -414,6 +695,188 @@ def scrape_idx_data(year, period="annual"):
 
     return scraped_data
 
-if __name__ == "__main__":
-    # For testing purposes
-    scrape_idx_data(2024, "annual")
+def reapply_filters(driver, year, period="annual"):
+    """Re-apply filters after navigating back to main page"""
+    try:
+        print(f"[FILTER] Re-applying filters for year {year}, period {period}")
+        
+        # Wait for page to load
+        time.sleep(3)
+        
+        # Find and click filter button
+        filter_button = None
+        filter_selectors = [
+            "//button[contains(text(), 'Filter')]",
+            "//button[contains(text(), 'Saring')]",
+            "//button[contains(@class, 'filter')]",
+            "//button[contains(@id, 'filter')]"
+        ]
+        
+        for selector in filter_selectors:
+            try:
+                elements = driver.find_elements(By.XPATH, selector)
+                if elements:
+                    filter_button = elements[0]
+                    driver.execute_script("arguments[0].click();", filter_button)
+                    time.sleep(2)
+                    break
+            except Exception as e:
+                continue
+        
+        if not filter_button:
+            print("[FILTER] Could not find filter button")
+            return False
+        
+        # Select year
+        year_input = None
+        year_selectors = [
+            f"//input[@value='{year}']",
+            f"//option[@value='{year}']",
+            f"//select//option[text()='{year}']"
+        ]
+        
+        for selector in year_selectors:
+            try:
+                elements = driver.find_elements(By.XPATH, selector)
+                if elements:
+                    year_input = elements[0]
+                    driver.execute_script("arguments[0].click();", year_input)
+                    break
+            except Exception as e:
+                continue
+          # Select period
+        print(f"[FILTER] Selecting period: {period}")
+        if period == "quarterly":
+            # Pilih triwulan 1 (value="tw1", id="period0")
+            period_selectors = [
+                "//input[@value='tw1']",
+                "//input[@id='period0']",
+                "//input[@name='period'][@value='tw1']"
+            ]
+        else:
+            # Pilih tahunan (value="audit", id="period3")
+            period_selectors = [
+                "//input[@value='audit']",
+                "//input[@id='period3']",
+                "//input[@name='period'][@value='audit']"
+            ]
+        
+        for selector in period_selectors:
+            try:
+                elements = driver.find_elements(By.XPATH, selector)
+                print(f"[FILTER] Period selector '{selector}': Found {len(elements)} elements")
+                if elements:
+                    driver.execute_script("arguments[0].click();", elements[0])
+                    print(f"[FILTER] ✓ Successfully selected period: {period}")
+                    break
+            except Exception as e:
+                print(f"[FILTER] Error with period selector '{selector}': {e}")
+                continue
+        
+        # Select audit type (saham)
+        audit_selectors = [
+            "//input[@value='Saham']",
+            "//input[contains(@id, 'saham')]"
+        ]
+        
+        for selector in audit_selectors:
+            try:
+                elements = driver.find_elements(By.XPATH, selector)
+                if elements:
+                    driver.execute_script("arguments[0].click();", elements[0])
+                    break
+            except Exception as e:
+                continue
+        
+        # Apply filter
+        apply_selectors = [
+            "//button[contains(text(), 'Terapkan')]",
+            "//button[contains(text(), 'Apply')]"
+        ]
+        
+        for selector in apply_selectors:
+            try:
+                elements = driver.find_elements(By.XPATH, selector)
+                if elements:
+                    driver.execute_script("arguments[0].click();", elements[0])
+                    time.sleep(5)  # Wait for filter to be applied
+                    break
+            except Exception as e:
+                continue
+        
+        print("[FILTER] Filters re-applied successfully")
+        return True
+        
+    except Exception as e:
+        print(f"[FILTER] Error re-applying filters: {e}")
+        return False
+
+def quick_check_xbrl_ticker(xbrl_path):
+    """
+    Quickly check what ticker is in an XBRL file without full processing
+    
+    Args:
+        xbrl_path: Path to the XBRL file
+        
+    Returns:
+        str: Ticker found in the file, or None if not found
+    """
+    try:
+        with open(xbrl_path, 'r', encoding='utf-8') as xbrl_file:
+            xbrl_content = xbrl_file.read()
+            
+        # Check if file is empty or too small
+        if len(xbrl_content.strip()) < 100:
+            return None
+              # Quick check for ticker in identifier without full XML parsing
+        # Look for <identifier scheme="http://www.idx.co.id">TICKER</identifier> pattern
+        import re
+        pattern = r'<identifier[^>]*scheme="http://www\.idx\.co\.id"[^>]*>([^<]+)</identifier>'
+        match = re.search(pattern, xbrl_content)
+        if match:
+            found_identifier = match.group(1).strip()
+            # Check if any of our target tickers is contained in this identifier
+            target_tickers = ['AADI', 'AALI', 'ABBA', 'ABDA', 'ABMM']
+            matched_ticker = is_valid_ticker(found_identifier, target_tickers)
+            if matched_ticker:
+                return matched_ticker
+            return f"UNKNOWN({found_identifier})"  # Return with prefix if no match found
+          # Fallback to full XML parsing if pattern not found
+        try:
+            xbrl_data = xmltodict.parse(xbrl_content)
+            company_name = extract_company_name_from_xbrl(xbrl_data)
+            if company_name:
+                target_tickers = ['AADI', 'AALI', 'ABBA', 'ABDA', 'ABMM']
+                matched_ticker = is_valid_ticker(company_name, target_tickers)
+                return matched_ticker if matched_ticker else f"UNKNOWN({company_name})"
+            return None
+        except:
+            return None
+            
+    except Exception as e:
+        print(f"[QUICK_CHECK] Error checking XBRL ticker: {e}")
+        return None
+
+def is_valid_ticker(found_ticker, target_tickers):
+    """
+    Check if found ticker contains any of the target tickers
+    
+    Args:
+        found_ticker: The ticker found in XBRL (e.g., "ABBA_APPROVER")
+        target_tickers: List of target tickers (e.g., ['AADI', 'AALI', 'ABBA', 'ABDA', 'ABMM'])
+    
+    Returns:
+        str: The matching target ticker if found, None otherwise
+    """
+    if not found_ticker:
+        return None
+    
+    found_ticker = str(found_ticker).upper()
+    
+    for target in target_tickers:
+        if target in found_ticker:
+            print(f"[TICKER_MATCH] Found '{target}' in '{found_ticker}'")
+            return target
+    
+    print(f"[TICKER_MATCH] No target ticker found in '{found_ticker}'")
+    return None
